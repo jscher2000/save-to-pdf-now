@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" href="save-to-pdf-now-popup.css" type="text/css">
+<title>Save to PDF now - 0.5</title>
+</head>
+<body>
+<div id="box">
+	<h3>Save to PDF now</h3>
+	<form name="pdf" action="#">
+		<p id="overrider"><label><input type="radio" name="override" value="false" checked> Use browser settings</label>
+			<label><input type="radio" name="override" value="true"> Use my custom settings</label></p>
+		
+		<p><button id="btnSaveGo" type="button">Save Changes and Generate PDF</button> <button id="btnGo" type="button">Generate PDF without Saving Changes</button></p>
+
+		<p class="customsettings disabled">Orientation: <label><input type="radio" name="orientation" value="0" checked> Portrait</label>
+				<label><input type="radio" name="orientation" value="1"> Landscape</label><br>
+			Paper Size: <label><input type="radio" name="paper" value="L" checked> Letter</label>
+				<label><input type="radio" name="paper" value="A4"> A4</label><br>
+			Scaling: <label><input type="radio" name="scale" value="shrinkToFit" checked> Shrink to fit</label>
+				<label><input type="radio" name="scale" value="1"> 100%</label> 
+				<label><input type="radio" name="scale" value="0.9"> 90%</label> 
+				<label><input type="radio" name="scale" value="0.8"> 80%</label><br>
+			Background: <label><input type="checkbox" name="showBackgroundColors" checked> Background Colors</label>
+				<label><input type="checkbox" name="showBackgroundImages" checked> Background Images</label></p>
+
+		<div id="floatValidation">
+			<p class="customsettings hanging disabled">Margins: <label><input type="radio" name="marginOverride" value="false" checked> Use browser settings</label>
+				<label><input type="radio" name="marginOverride" value="true"> Use my custom settings</label><br>
+				<label>Top: <input type="text" size="3" name="marginTop" title="Minimum distance between top of content and top edge of paper" disabled="disabled"> inches</label> &nbsp;|&nbsp;
+				<label>Bottom: <input type="text" size="3" name="marginBottom" title="Minimum distance between bottom of content and bottom edge of paper" disabled="disabled"> inches</label> &nbsp;|&nbsp;
+				<label>Left: <input type="text" size="3" name="marginLeft" title="Minimum distance between left side of content and left edge of paper" disabled="disabled"> inches</label> &nbsp;|&nbsp;
+				<label>Right: <input type="text" size="3" name="marginRight" title="Minimum distance between right side of content and right edge of paper" disabled="disabled"> inches</label><br>
+			<em>These inputs allow values between 0.01 and 1.50 inches</em></p>
+			<p class="customsettings hanging disabled">Outer Edge: <label><input type="radio" name="edgeOverride" value="false" checked> Use browser settings</label>
+					<label><input type="radio" name="edgeOverride" value="true"> Use my custom setting:</label> 
+					<input type="text" size="3" name="edgeDistance" title="Distance between header/footer and edge of paper" disabled="disabled"> inches<br>
+					<em>This input allows values between 0.01 and 0.50 inches</em></p>
+		</div>
+
+		<p class="customsettings hanging disabled">Headers: <br>
+			<label>Left: <select name="headerLeft">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label> <label>Center: <select name="headerCenter">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label> <label>Right: <select name="headerRight">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label></p>
+		<p class="customsettings hanging disabled">Footers: <br>
+			<label>Left: <select name="footerLeft">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label> <label>Center: <select name="footerCenter">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label> <label>Right: <select name="footerRight">
+				<option value="-1" selected>Use browser setting</option>
+				<option value="&T">Title</option>
+				<option value="&U">URL</option>
+				<option value="&D">Date and time</option>
+				<option value="&PT">Page x of y</option>
+				<option value="0">(Empty)</option>
+			</select></label></p>
+		<p class="hanging">When I click the toolbar button: <label><input type="radio" name="shiftToPrint" value="true" checked> Show this panel</label>
+			<label><input type="radio" name="shiftToPrint" value="false"> Save to PDF</label><br>(Shift+click the toolbar button for the <em>other</em> choice)</p>
+	</form>
+	<p id="errs"></p>
+</div>
+<script src="save-to-pdf-now-popup.js"></script>
+</html>

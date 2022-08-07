@@ -1,0 +1,45 @@
+{
+	"manifest_version": 2,
+	"name": "Save to PDF now - with no preview",
+	"description": "Call Firefox's built-in Save to PDF feature using a button or keyboard shortcut and skip the preview.",
+	"version": "0.6",
+	"applications":{
+		"gecko": {
+			"id": "save-to-pdf-now-no-preview@jeffersonscher.com",
+			"strict_min_version": "91.0"
+		}
+	},
+	"developer": {
+		"name": "Jefferson \"jscher2000\" Scher",
+		"url": "https://github.com/jscher2000/"
+	},
+	"background": {
+		"scripts": [
+			"save-to-pdf-now-background.js"
+		]
+	},
+	"browser_action": {
+		"browser_style": true,
+		"default_title": "Save to PDF now (Shift+click for options)",
+		"theme_icons": [{
+			"light": "icons/save-pdf-256-dark.png",
+			"dark": "icons/save-pdf-256-light.png",
+			"size": 256
+		}]
+	},
+	"permissions": [
+		"menus",
+		"storage"
+	],
+	"icons": {
+		"256": "icons/save-pdf-256-light.png"
+	},
+	"commands": {
+		"save-to-pdf-now": {
+			"description": "Generate and save the PDF",
+			"suggested_key": {
+				"default": "Shift+Alt+P"
+			}
+		}
+	}
+}
