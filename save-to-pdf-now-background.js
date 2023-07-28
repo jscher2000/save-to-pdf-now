@@ -1,8 +1,10 @@
 /* 
 	Save to PDF now
-	Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
+	Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
 	Contains some code from Printable - The Print Doctor © 2021
 	version 0.5 - initial design
+	version 0.6 - keyboard shortcut
+	version 0.7 - long page initial design
 */
 
 /**** Set up/retrieve PDF Preferences ****/
@@ -11,7 +13,8 @@
 let oPDFPrefs = {
 	override: false,				// Use current default values for everything
 	orientation: 0,					// 0 = portrait, 1 = landscape
-	paperSize: 'L',					// L = Letter, A4 = A4
+	paperSize: 'L',					// L = Letter, A4 = A4, L100 = 8.5" x 100"
+	paperLength: 100,				// L100 custom paper length (width TODO)
 	shrinkToFit: true,				// shrinkToFit
 	scaling: 1.0,					// scaling
 	bgcolor: true,					// showBackgroundColors
@@ -37,10 +40,12 @@ let oPDFPrefs = {
 	marginLeft: 0.5, 				// left margin in inches
 	shiftToPrint: true				// whether Shift+clicking toolbar button prints (or shows the popup)
 }
+// Update oPDFPrefs from storage
 browser.storage.local.get("PDFprefs").then((results) => {
-	if (results.PDFprefs != undefined){
-		if (JSON.stringify(results.PDFprefs) != '{}'){
-			oPDFPrefs = results.PDFprefs;
+	if (results.PDFprefs != undefined){		
+		var arrSavedPrefs = Object.keys(results.PDFprefs)
+		for (var j=0; j<arrSavedPrefs.length; j++){
+			oPDFPrefs[arrSavedPrefs[j]] = results.PDFprefs[arrSavedPrefs[j]];
 		}
 	} else {
 		// first run? TODO: error handling?
@@ -48,7 +53,7 @@ browser.storage.local.get("PDFprefs").then((results) => {
 	}
 });
 
-// Bulk update if storage changes
+// Bulk update if storage changes in the popup
 browser.storage.onChanged.addListener((changes, areaName) => {
 	browser.storage.local.get("PDFprefs").then((results) => {
 		if (results.PDFprefs != undefined){
@@ -64,7 +69,6 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 // Listen for button click and show popup
 browser.browserAction.onClicked.addListener((currTab, clickData) => {
 	// Check for Shift key to modify preferences
-	console.log(clickData);
 	if (oPDFPrefs.shiftToPrint == true){
 		if (clickData.modifiers.includes('Shift')){
 			// Make the PDF
@@ -96,13 +100,16 @@ function makePDF() {
 	} else {
 		// Set up the pageSettings object for PDF'ing
 		var pageSettings = {};
-		console.log(oPDFPrefs);
 		// Basic settings
 		pageSettings.orientation = oPDFPrefs.orientation
 		if (oPDFPrefs.paperSize == 'A4'){
 			pageSettings.paperSizeUnit = 1;
 			pageSettings.paperHeight = 297;
 			pageSettings.paperWidth = 210;
+		} else if (oPDFPrefs.paperSize == 'L100'){
+			pageSettings.paperSizeUnit = 0;
+			pageSettings.paperHeight = oPDFPrefs.paperLength;
+			pageSettings.paperWidth = 8.5;
 		} else {
 			// browser defaults to letter dimensions, so nothing to set here
 		}

@@ -1,14 +1,44 @@
 /* 
 	Save to PDF now
-	Copyright 2022. Jefferson "jscher2000" Scher. License: MPL-2.0.
+	Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
 	Contains some code from Printable - The Print Doctor © 2021
 	version 0.5 - initial design
+	version 0.7 - long page initial design
 */
 
 /**** Retrieve Preferences from Storage and Initialize Form ****/
 
 // Default starting values
-let oPDFPrefs = {};
+let oPDFPrefs = {
+	override: false,				// Use current default values for everything
+	orientation: 0,					// 0 = portrait, 1 = landscape
+	paperSize: 'L',					// L = Letter, A4 = A4, L100 = 8.5" x 100"
+	paperLength: 100,				// L100 custom paper length (width TODO)
+	shrinkToFit: true,				// shrinkToFit
+	scaling: 1.0,					// scaling
+	bgcolor: true,					// showBackgroundColors
+	bgimages: true,					// showBackgroundImages
+	headerLeftOverride: false,		// use current default left header
+	headerLeftText: '&T',			// left header = title
+	headerCenterOverride: false,	// use current default center header
+	headerCenterText: '',			// center header = blank
+	headerRightOverride: false,		// use current default right header
+	headerRightText: '&U',			// right header = URL
+	footerLeftOverride: false,		// use current default left footer
+	footerLeftText: '&PT',			// left footer = page x of y
+	footerCenterOverride: false,	// use current default center footer
+	footerCenterText: '',			// center footer = blank
+	footerRightOverride: false,		// use current default right footer
+	footerRightText: '&D',			// right footer = date
+	edgeOverride: false,			// use current default edge values
+	edgeDistance: 0.2, 				// custom edge value in inches (applied to all 4 edges)
+	marginOverride: false,			// current default edge values
+	marginTop: 0.5, 				// top margin in inches
+	marginRight: 0.5, 				// right margin in inches
+	marginBottom: 0.5, 				// bottom margin in inches
+	marginLeft: 0.5, 				// left margin in inches
+	shiftToPrint: true				// whether Shift+clicking toolbar button prints (or shows the popup)
+}
 // Update oPDFPrefs from storage
 var updtPrefs = browser.storage.local.get("PDFprefs").then((results) => {
 	if (results.PDFprefs != undefined){
@@ -37,7 +67,7 @@ updtPrefs.then(() => {
 	// Basic settings
 	frm.orientation.value = oPDFPrefs.orientation;
 	frm.paper.value = oPDFPrefs.paperSize;
-	console.log(oPDFPrefs.shrinkToFit);
+	frm.paperlength.value = parseInt(oPDFPrefs.paperLength);
 	if (oPDFPrefs.shrinkToFit == true){
 		frm.scale.value = 'shrinkToFit';
 	} else {
@@ -143,6 +173,10 @@ function saveAsPDF(evt){
 		changed = true;
 		oPDFPrefs.paperSize = frm.paper.value;
 	}
+	if (oPDFPrefs.paperLength !== parseInt(frm.paperlength.value)){
+		changed = true;
+		oPDFPrefs.paperLength = parseInt(frm.paperlength.value);
+	}
 	if (frm.scale.value == 'shrinkToFit'){
 		if (oPDFPrefs.shrinkToFit !== true){
 			changed = true;
@@ -215,7 +249,6 @@ function saveAsPDF(evt){
 		oPDFPrefs.edgeOverride = false;
 	}
 	if (oPDFPrefs.edgeDistance !== parseFloat(frm.edgeDistance.value)){
-		console.log(frm.edgeDistance.value);
 		if (parseFloat(frm.edgeDistance.value) >= 0.01 && parseFloat(frm.edgeDistance.value) <= 0.50){
 			changed = true;
 			oPDFPrefs.edgeDistance = parseFloat(frm.edgeDistance.value);
@@ -362,8 +395,12 @@ function saveAsPDF(evt){
 			pageSettings.paperSizeUnit = 1;
 			pageSettings.paperHeight = 297;
 			pageSettings.paperWidth = 210;
+		} else if (oPDFPrefs.paperSize == 'L100'){
+				pageSettings.paperSizeUnit = 0;
+				pageSettings.paperHeight = oPDFPrefs.paperLength;
+				pageSettings.paperWidth = 8.5;
 		} else {
-			// browser defaults to letter dimensions, so nothing to set here
+				// browser defaults to letter dimensions, so nothing to set here
 		}
 		if (oPDFPrefs.shrinkToFit == false){
 			pageSettings.shrinkToFit = false;
@@ -412,6 +449,11 @@ function saveAsPDF(evt){
 }
 document.getElementById('btnSaveGo').addEventListener('click', saveAsPDF, false);
 document.getElementById('btnGo').addEventListener('click', saveAsPDF, false);
+document.querySelector('input[name="paperlength"]').addEventListener('click', function(evt){
+	// transfer this click to the radio button
+	var brad = evt.target.previousElementSibling;
+	if (brad.checked != true) brad.checked = true;
+}, false);
 
 // Toggle opacity of form controls
 document.getElementById('overrider').addEventListener('change', function(evt){

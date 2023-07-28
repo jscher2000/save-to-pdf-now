@@ -1,4 +1,4 @@
-/* version 0.5 */
+/* version 0.7 */
 body {
 	margin: 0;
 	padding: 0.4em 1.2em;
@@ -43,4 +43,7 @@ input[size="3"] {
 }
 button {
 	font-size: 1.25em;
+}
+input[name="paperlength"]{
+	width: 75px;
 }

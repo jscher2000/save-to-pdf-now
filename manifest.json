@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Save to PDF now - with no preview",
 	"description": "Call Firefox's built-in Save to PDF feature using a button or keyboard shortcut and skip the preview.",
-	"version": "0.6",
+	"version": "0.7",
 	"applications":{
 		"gecko": {
 			"id": "save-to-pdf-now-no-preview@jeffersonscher.com",
