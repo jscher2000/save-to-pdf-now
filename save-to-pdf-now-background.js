@@ -1,10 +1,12 @@
 /* 
 	Save to PDF now
-	Copyright 2023. Jefferson "jscher2000" Scher. License: MPL-2.0.
+	Copyright 2024. Jefferson "jscher2000" Scher. License: MPL-2.0.
 	Contains some code from Printable - The Print Doctor © 2021
 	version 0.5 - initial design
 	version 0.6 - keyboard shortcut
 	version 0.7 - long page initial design
+	version 0.8 - shorten menu text
+	version 0.9 - context menu options
 */
 
 /**** Set up/retrieve PDF Preferences ****/
@@ -38,7 +40,8 @@ let oPDFPrefs = {
 	marginRight: 0.5, 				// right margin in inches
 	marginBottom: 0.5, 				// bottom margin in inches
 	marginLeft: 0.5, 				// left margin in inches
-	shiftToPrint: true				// whether Shift+clicking toolbar button prints (or shows the popup)
+	shiftToPrint: true,				// whether Shift+clicking toolbar button prints (or shows the popup)
+	showOnContext: true				// whether to add to the context menu
 }
 // Update oPDFPrefs from storage
 browser.storage.local.get("PDFprefs").then((results) => {
@@ -160,24 +163,66 @@ function makePDF() {
 
 /**** Set up Right-click context menu integration ****/
 
+// Toolbar Button context menu 
 browser.menus.create({
-  id: "context_save_to_pdf_now",
-  title: "Save to PDF now (Shift+click for options)",
-  contexts: ["page", "frame", "audio", "image", "link", "selection", "video"],
-  icons: {
-	"64": "icons/save-pdf-256-light.png"
-  }
-})
-browser.menus.onClicked.addListener((menuInfo, currTab) => {
-	// Check for Shift key to modify preferences
-	if (menuInfo.modifiers.includes('Shift')){
-		// Open popup - TODO doesn't work in popup window, need to launch a window for this
-		browser.browserAction.setPopup({popup: browser.runtime.getURL('save-to-pdf-now-popup.html')})
-		.then(browser.browserAction.openPopup())
-		.then(browser.browserAction.setPopup({popup: ''}));
+  id: "bamenu_togglecontext",
+  title: "Show context menu item",
+  contexts: ["browser_action"],
+  type: "checkbox",
+  checked: true
+});
+
+// Extension item
+function menuSetup(blnChanged){
+	if (oPDFPrefs.showOnContext == true && blnChanged){
+		// add to menu
+		browser.menus.create({
+		  id: "context_save_to_pdf_now",
+		  title: "Save to PDF now (🡅 dialog)",
+		  contexts: ["page", "frame", "audio", "image", "link", "selection", "video"],
+		  icons: {
+			"64": "icons/save-pdf-256-light.png"
+		  }
+		})
+	} else if (blnChanged){
+		// Remove from menu
+		browser.menus.remove("context_save_to_pdf_now").then(() => {console.log('Success');}).catch((err) => {console.log(err);});
 	} else {
-		// Make the PDF
-		makePDF();
+		// Nothing changed, so ignore
+	}
+}
+// initial
+menuSetup(true);
+
+// Event handler
+browser.menus.onClicked.addListener((menuInfo, currTab) => {
+	switch (menuInfo.menuItemId) {
+		case 'context_save_to_pdf_now':
+			// Check for Shift key to modify preferences
+			if (menuInfo.modifiers.includes('Shift')){
+				// Open popup - TODO doesn't work in popup window, need to launch a window for this
+				browser.browserAction.setPopup({popup: browser.runtime.getURL('save-to-pdf-now-popup.html')})
+				.then(browser.browserAction.openPopup())
+				.then(browser.browserAction.setPopup({popup: ''}));
+			} else {
+				// Make the PDF
+				makePDF();
+			}
+			break;
+		case 'bamenu_togglecontext':
+			// Check status of the checkbox and update prefs if appropriate
+			if (menuInfo.checked == true && menuInfo.wasChecked == false){ // update storage
+				oPDFPrefs.showOnContext = true;
+				browser.storage.local.set({ PDFprefs: oPDFPrefs }).then(() => {
+					menuSetup(true);
+				}).catch((err) => {console.log('Error on browser.storage.local.set(): '+err.message);});
+			} else if (menuInfo.checked == false && menuInfo.wasChecked == true){
+				oPDFPrefs.showOnContext = false;
+				browser.storage.local.set({ PDFprefs: oPDFPrefs }).then(() => {
+					menuSetup(true);
+				}).catch((err) => {console.log('Error on browser.storage.local.set(): '+err.message);});
+			}
+			break;
 	}
 });
 
